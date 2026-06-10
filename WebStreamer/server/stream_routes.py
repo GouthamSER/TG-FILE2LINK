@@ -7,7 +7,7 @@ import math
 import logging
 import secrets
 import mimetypes
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 from aiohttp import web
 from aiohttp.http_exceptions import BadStatusLine
 from WebStreamer.bot import multi_clients, work_loads
@@ -42,14 +42,20 @@ async def root_route_handler(_):
 async def stream_handler(request: web.Request):
     try:
         path = request.match_info["path"]
+        url_file_name = None
         match = re.search(r"^([0-9a-f]{%s})(\d+)$" % (Var.HASH_LENGTH), path)
         if match:
+            # short link: /hash+msgid  — no filename in URL
             secure_hash = match.group(1)
             message_id = int(match.group(2))
         else:
-            message_id = int(re.search(r"(\d+)(?:\/\S+)?", path).group(1))
+            # long link: /msgid/filename?hash=...
+            parts = path.split("/", 1)
+            message_id = int(re.search(r"(\d+)", parts[0]).group(1))
             secure_hash = request.rel_url.query.get("hash")
-        return await media_streamer(request, message_id, secure_hash)
+            if len(parts) > 1 and parts[1]:
+                url_file_name = unquote(parts[1])
+        return await media_streamer(request, message_id, secure_hash, url_file_name)
     except InvalidHash as e:
         raise web.HTTPForbidden(text=e.message)
     except FIleNotFound as e:
@@ -62,7 +68,7 @@ async def stream_handler(request: web.Request):
 
 class_cache = {}
 
-async def media_streamer(request: web.Request, message_id: int, secure_hash: str):
+async def media_streamer(request: web.Request, message_id: int, secure_hash: str, url_file_name: str = None):
     range_header = request.headers.get("Range", 0)
     
     index = min(work_loads, key=work_loads.get)
@@ -117,7 +123,10 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
         file_id, index, offset, first_part_cut, last_part_cut, part_count, chunk_size
     )
     mime_type = file_id.mime_type
-    file_name = utils.get_name(file_id)
+
+    # Priority: filename from URL path > filename from cached file_id
+    file_name = url_file_name or utils.get_name(file_id)
+
     disposition = "attachment"
 
     if not mime_type:

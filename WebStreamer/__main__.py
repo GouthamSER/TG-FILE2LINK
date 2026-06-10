@@ -23,7 +23,6 @@ logging.basicConfig(
 logging.getLogger("aiohttp").setLevel(logging.DEBUG if Var.DEBUG else logging.ERROR)
 logging.getLogger("pyrogram").setLevel(logging.INFO if Var.DEBUG else logging.ERROR)
 logging.getLogger("aiohttp.web").setLevel(logging.DEBUG if Var.DEBUG else logging.ERROR)
-logging.getLogger("asyncio").setLevel(logging.ERROR)
 
 server = web.AppRunner(web_server())
 
