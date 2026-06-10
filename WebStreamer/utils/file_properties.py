@@ -25,9 +25,9 @@ async def get_file_ids(client: Client, chat_id: int, message_id: int) -> Optiona
     media = get_media_from_message(message)
     file_unique_id = await parse_file_unique_id(message)
     file_id = await parse_file_id(message)
-    setattr(file_id, "file_size", getattr(media, "file_size", 0))
-    setattr(file_id, "mime_type", getattr(media, "mime_type", ""))
-    setattr(file_id, "file_name", getattr(media, "file_name", ""))
+    setattr(file_id, "file_size", getattr(media, "file_size", 0) or 0)
+    setattr(file_id, "mime_type", getattr(media, "mime_type", "") or "")
+    setattr(file_id, "file_name", getattr(media, "file_name", "") or "")
     setattr(file_id, "unique_id", file_unique_id)
     return file_id
 
@@ -69,21 +69,29 @@ def get_name(media_msg: Union[Message, FileId]) -> str:
         file_name = getattr(media_msg, "file_name", "") or ""
 
     if not file_name:
+        # Determine media_type label
         if isinstance(media_msg, Message) and media_msg.media:
             media_type = media_msg.media.value
-        elif media_msg.file_type:
+        elif hasattr(media_msg, "file_type") and media_msg.file_type:
             media_type = media_msg.file_type.name.lower()
         else:
             media_type = "file"
 
-        formats = {
-            "photo": "jpg", "audio": "mp3", "voice": "ogg",
-            "video": "mp4", "animation": "mp4", "video_note": "mp4",
-            "sticker": "webp"
-        }
-
-        ext = formats.get(media_type)
-        ext = "." + ext if ext else ""
+        # Try to get extension from mime_type first (most accurate)
+        mime_type = getattr(media_msg, "mime_type", "") or ""
+        if mime_type:
+            import mimetypes
+            ext = mimetypes.guess_extension(mime_type) or ""
+            # mimetypes can return odd ones like .jpe for jpeg — normalize
+            ext = {".jpe": ".jpg", ".jpeg": ".jpg", ".jfif": ".jpg"}.get(ext, ext)
+        else:
+            # fallback map by media_type label
+            formats = {
+                "photo": ".jpg", "audio": ".mp3", "voice": ".ogg",
+                "video": ".mp4", "animation": ".mp4", "video_note": ".mp4",
+                "sticker": ".webp"
+            }
+            ext = formats.get(media_type, "")
 
         date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         file_name = f"{media_type}-{date}{ext}"
