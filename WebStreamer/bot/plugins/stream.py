@@ -36,7 +36,7 @@ def get_size_readable(size: int) -> str:
 )
 async def media_receive_handler(_, m: Message):
     if Var.ALLOWED_USERS and not ((str(m.from_user.id) in Var.ALLOWED_USERS) or (m.from_user.username in Var.ALLOWED_USERS)):
-        return await m.reply("You are not <b>allowed to use</b> this <a href='https://github.com/EverythingSuckz/TG-FileStreamBot'>bot</a>.", quote=True)
+        return await m.reply("You are not <b>allowed to use</b> this <a href='https://github.com/GouthamSER/TG-FileStreamBot'>bot</a>.", quote=True)
     log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
     file_hash = get_hash(log_msg, Var.HASH_LENGTH)
     file_name = get_name(m)
@@ -65,7 +65,7 @@ async def media_receive_handler(_, m: Message):
             parse_mode=ParseMode.HTML,
             reply_markup=InlineKeyboardMarkup(
                 [[
-                    InlineKeyboardButton("Shortened 🔗", url=short_link),
+                    #InlineKeyboardButton("Shortened 🔗", url=short_link),
                     InlineKeyboardButton("Download 📥", url=stream_link),
                 ]]
             ),
