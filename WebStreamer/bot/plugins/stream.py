@@ -7,8 +7,17 @@ from WebStreamer.vars import Var
 from urllib.parse import quote_plus
 from WebStreamer.bot import StreamBot, logger
 from WebStreamer.utils import get_hash, get_name
+from WebStreamer.utils.file_properties import get_media_from_message
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+
+
+def get_size_readable(size: int) -> str:
+    for unit in ["B", "KiB", "MiB", "GiB", "TiB"]:
+        if size < 1024:
+            return f"{size:.2f} {unit}"
+        size /= 1024
+    return f"{size:.2f} PiB"
 
 
 @StreamBot.on_message(
@@ -30,25 +39,40 @@ async def media_receive_handler(_, m: Message):
         return await m.reply("You are not <b>allowed to use</b> this <a href='https://github.com/EverythingSuckz/TG-FileStreamBot'>bot</a>.", quote=True)
     log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
     file_hash = get_hash(log_msg, Var.HASH_LENGTH)
-    stream_link = f"{Var.URL}{log_msg.id}/{quote_plus(get_name(m))}?hash={file_hash}"
+    file_name = get_name(m)
+    stream_link = f"{Var.URL}{log_msg.id}/{quote_plus(file_name)}?hash={file_hash}"
     short_link = f"{Var.URL}{file_hash}{log_msg.id}"
     logger.info(f"Generated link: {stream_link} for {m.from_user.first_name}")
+
+    media = get_media_from_message(m)
+    file_size = getattr(media, "file_size", 0) or 0
+    size_str = get_size_readable(file_size) if file_size else "Unknown"
+
+    reply_text = (
+        "<b>Your Link Generated !</b>\n\n"
+        "📄 <b>File Name :</b>\n"
+        f"<code>{file_name}</code>\n\n"
+        "📦 <b>File size :</b> <code>{}</code>\n\n"
+        "🔗 <b>Download Link:</b> <a href='{}'>{}</a>\n\n"
+        "⏰ <b>Link Expires In 24hrs</b>\n\n"
+        "📌 <b>Note :-</b> Use FDM (For PC) or FDM (For Mobile) To Download With Maximum Speed"
+    ).format(size_str, stream_link, stream_link)
+
     try:
         await m.reply_text(
-            text="<code>{}</code>\n(<a href='{}'>shortened</a>)".format(
-                stream_link, short_link
-            ),
+            text=reply_text,
             quote=True,
             parse_mode=ParseMode.HTML,
             reply_markup=InlineKeyboardMarkup(
-                [[InlineKeyboardButton("Open", url=stream_link)]]
+                [[
+                    InlineKeyboardButton("Stream 🖥️", url=stream_link),
+                    InlineKeyboardButton("Download 📥", url=short_link),
+                ]]
             ),
         )
     except errors.ButtonUrlInvalid:
         await m.reply_text(
-            text="<code>{}</code>\n\nshortened: {})".format(
-                stream_link, short_link
-            ),
+            text=reply_text,
             quote=True,
             parse_mode=ParseMode.HTML,
         )
