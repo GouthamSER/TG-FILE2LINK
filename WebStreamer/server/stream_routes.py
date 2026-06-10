@@ -7,6 +7,7 @@ import math
 import logging
 import secrets
 import mimetypes
+from urllib.parse import quote
 from aiohttp import web
 from aiohttp.http_exceptions import BadStatusLine
 from WebStreamer.bot import multi_clients, work_loads
@@ -132,7 +133,7 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
             "Content-Type": f"{mime_type}",
             "Content-Range": f"bytes {from_bytes}-{until_bytes}/{file_size}",
             "Content-Length": str(req_length),
-            "Content-Disposition": f'{disposition}; filename="{file_name}"',
+            "Content-Disposition": f"{disposition}; filename*=UTF-8''{quote(file_name)}",
             "Accept-Ranges": "bytes",
         },
     )
