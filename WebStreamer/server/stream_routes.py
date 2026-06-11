@@ -14,6 +14,13 @@ from WebStreamer.bot import multi_clients, work_loads
 from WebStreamer.server.exceptions import FIleNotFound, InvalidHash
 from WebStreamer import Var, utils, StartTime, __version__, StreamBot
 
+try:
+    from WebStreamer.db import inc_download as _inc_download
+    _db_enabled = bool(Var.DATABASE_URI)
+except Exception:
+    _db_enabled = False
+    _inc_download = None
+
 logger = logging.getLogger("routes")
 
 
@@ -134,6 +141,10 @@ async def media_streamer(request: web.Request, message_id: int, secure_hash: str
 
     if "video/" in mime_type or "audio/" in mime_type or "/html" in mime_type:
         disposition = "inline"
+
+    if _db_enabled and _inc_download:
+        import asyncio
+        asyncio.ensure_future(_inc_download(req_length))
 
     return web.Response(
         status=206 if range_header else 200,

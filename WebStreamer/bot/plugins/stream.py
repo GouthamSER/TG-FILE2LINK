@@ -11,6 +11,16 @@ from WebStreamer.utils.file_properties import get_media_from_message
 from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
+try:
+    from WebStreamer.db import inc_upload, add_user
+    from WebStreamer.bot.plugins.start import check_fsub
+    _db_enabled = bool(Var.DATABASE_URI)
+except Exception:
+    _db_enabled = False
+    inc_upload = None
+    add_user = None
+    check_fsub = None
+
 
 def get_size_readable(size: int) -> str:
     for unit in ["B", "KiB", "MiB", "GiB", "TiB"]:
@@ -37,6 +47,20 @@ def get_size_readable(size: int) -> str:
 async def media_receive_handler(_, m: Message):
     if Var.ALLOWED_USERS and not ((str(m.from_user.id) in Var.ALLOWED_USERS) or (m.from_user.username in Var.ALLOWED_USERS)):
         return await m.reply("You are not <b>allowed to use</b> this <a href='https://github.com/GouthamSER/TG-FileStreamBot'>bot</a>.", quote=True)
+
+    # FSub check
+    if check_fsub and not await check_fsub(_, m.from_user.id):
+        from WebStreamer.bot.plugins.start import fsub_keyboard
+        return await m.reply(
+            "📢 <b>Please join our channel first!</b>",
+            reply_markup=fsub_keyboard(),
+            quote=True,
+        )
+
+    # Ensure user saved
+    if _db_enabled and add_user:
+        await add_user(m.from_user.id, m.from_user.first_name or "", m.from_user.username or "")
+
     log_msg = await m.forward(chat_id=Var.BIN_CHANNEL)
     file_hash = get_hash(log_msg, Var.HASH_LENGTH)
     file_name = get_name(m)
@@ -47,6 +71,10 @@ async def media_receive_handler(_, m: Message):
     media = get_media_from_message(m)
     file_size = getattr(media, "file_size", 0) or 0
     size_str = get_size_readable(file_size) if file_size else "Unknown"
+
+    # Track upload
+    if _db_enabled and inc_upload and file_size:
+        await inc_upload(file_size)
 
     reply_text = (
         "<b>Your Link Generated !</b>\n\n"

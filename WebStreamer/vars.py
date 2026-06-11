@@ -34,3 +34,12 @@ class Var(object):
     DEBUG = str(environ.get("DEBUG", "0").lower()) in ("1", "true", "t", "yes", "y")
     USE_SESSION_FILE = str(environ.get("USE_SESSION_FILE", "0").lower()) in ("1", "true", "t", "yes", "y")
     ALLOWED_USERS = [x.strip("@ ") for x in str(environ.get("ALLOWED_USERS", "") or "").split(",") if x.strip("@ ")]
+    # MongoDB
+    DATABASE_URI = str(environ.get("DATABASE_URI", ""))
+    DATABASE_NAME = str(environ.get("DATABASE_NAME", "FileStreamBot"))
+    # Force-subscribe channel username or ID (e.g. "@mychannel" or "-100xxx")
+    # Leave empty to disable.
+    _fsub_raw = environ.get("FSUB_CHANNEL", "").strip()
+    FSUB_CHANNEL = int(_fsub_raw) if _fsub_raw.lstrip("-").isdigit() else (_fsub_raw or None)
+    # Bot owner user_id (for /stats and /broadcast)
+    OWNER_ID = int(environ.get("OWNER_ID", "0"))
