@@ -12,19 +12,11 @@ logger = logging.getLogger("admin")
 _db_enabled = bool(Var.DATABASE_URI)
 
 if _db_enabled:
-    from WebStreamer.db import get_user_count, get_all_users, get_stats
+    from WebStreamer.db import get_user_count, get_all_users
 
 
 def owner_filter(_, __, m: Message):
     return m.from_user and m.from_user.id == Var.OWNER_ID
-
-
-def human_bytes(n: int) -> str:
-    for unit in ["B", "KiB", "MiB", "GiB", "TiB"]:
-        if n < 1024:
-            return f"{n:.2f} {unit}"
-        n /= 1024
-    return f"{n:.2f} PiB"
 
 
 @StreamBot.on_message(filters.command("stats") & filters.private & filters.create(owner_filter))
@@ -33,14 +25,9 @@ async def stats_cmd(_, m: Message):
         return await m.reply("⚠️ <b>DATABASE_URI not set.</b> Stats unavailable.", quote=True)
 
     users = await get_user_count()
-    stats = await get_stats()
-
     text = (
         "📊 <b>Bot Statistics</b>\n\n"
-        f"👥 <b>Total Users:</b> <code>{users}</code>\n"
-        f"📤 <b>Files Uploaded:</b> <code>{stats['file_count']}</code>\n"
-        f"📦 <b>Data Uploaded:</b> <code>{human_bytes(stats['upload_bytes'])}</code>\n"
-        f"📥 <b>Data Served:</b> <code>{human_bytes(stats['download_bytes'])}</code>"
+        f"👥 <b>Total Users:</b> <code>{users}</code>"
     )
     await m.reply(text, quote=True)
 

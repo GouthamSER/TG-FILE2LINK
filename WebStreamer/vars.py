@@ -37,6 +37,7 @@ class Var(object):
     # MongoDB
     DATABASE_URI = str(environ.get("DATABASE_URI", ""))
     DATABASE_NAME = str(environ.get("DATABASE_NAME", "FileStreamBot"))
+    USERS_COLLECTION = str(environ.get("USERS_COLLECTION", "fsb_users"))
     # Force-subscribe channel username or ID (e.g. "@mychannel" or "-100xxx")
     # Leave empty to disable.
     _fsub_raw = environ.get("FSUB_CHANNEL", "").strip()

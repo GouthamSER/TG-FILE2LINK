@@ -12,12 +12,11 @@ from pyrogram.enums.parse_mode import ParseMode
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 
 try:
-    from WebStreamer.db import inc_upload, add_user
+    from WebStreamer.db import add_user
     from WebStreamer.bot.plugins.start import check_fsub
     _db_enabled = bool(Var.DATABASE_URI)
 except Exception:
     _db_enabled = False
-    inc_upload = None
     add_user = None
     check_fsub = None
 
@@ -71,10 +70,6 @@ async def media_receive_handler(_, m: Message):
     media = get_media_from_message(m)
     file_size = getattr(media, "file_size", 0) or 0
     size_str = get_size_readable(file_size) if file_size else "Unknown"
-
-    # Track upload
-    if _db_enabled and inc_upload and file_size:
-        await inc_upload(file_size)
 
     reply_text = (
         "<b>Your Link Generated !</b>\n\n"
