@@ -1,5 +1,5 @@
 # This file is a part of TG-FileStreamBot
-# Coding : Jyothis Jayanth [@EverythingSuckz]
+# Coding : Goutham Josh [ GouthamSER ]
 
 import sys
 from os import environ
@@ -9,12 +9,12 @@ load_dotenv()
 
 
 class Var(object):
-    MULTI_CLIENT = False
+    MULTI_CLIENT = True
     API_ID = int(environ.get("API_ID"))
     API_HASH = str(environ.get("API_HASH"))
     BOT_TOKEN = str(environ.get("BOT_TOKEN"))
     SLEEP_THRESHOLD = int(environ.get("SLEEP_THRESHOLD", "60"))  # 1 minte
-    WORKERS = int(environ.get("WORKERS", "6"))  # 6 workers = 6 commands at once
+    WORKERS = int(environ.get("WORKERS", "15"))  # 15 workers = 15 commands at once
     BIN_CHANNEL = int(
         environ.get("BIN_CHANNEL", None)
     )  # you NEED to use a CHANNEL when you're using MULTI_CLIENT
@@ -23,7 +23,7 @@ class Var(object):
     PING_INTERVAL = int(environ.get("PING_INTERVAL", "1200"))  # 20 minutes
     HAS_SSL = str(environ.get("HAS_SSL", "true").lower()) in ("1", "true", "t", "yes", "y")
     NO_PORT = str(environ.get("NO_PORT", "true").lower()) in ("1", "true", "t", "yes", "y")
-    HASH_LENGTH = int(environ.get("HASH_LENGTH", 6))
+    HASH_LENGTH = int(environ.get("HASH_LENGTH", 7))
     if not 5 < HASH_LENGTH < 64:
         sys.exit("Hash length should be greater than 5 and less than 64")
     FQDN = str(environ.get("FQDN", BIND_ADDRESS))
