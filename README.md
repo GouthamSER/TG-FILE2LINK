@@ -212,13 +212,13 @@ Links are valid as long as the bot is running and `BIN_CHANNEL` is intact.
 Developed and maintained by **[GouthamSER](https://github.com/GouthamSER)**
 
 [![GitHub](https://img.shields.io/badge/GitHub-GouthamSER-181717?style=for-the-badge&logo=github)](https://github.com/GouthamSER)
-[![Telegram](https://img.shields.io/badge/Telegram-GouthamSER-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/GouthamSER)
+[![Telegram](https://img.shields.io/badge/Telegram-GouthamSER-2CA5E0?style=for-the-badge&logo=telegram)](https://t.me/im_goutham_josh)
 
 <hr>
 
 ## Credits
 
-- **[GouthamSER](https://github.com/GouthamSER)** — Owner & Developer
+- **[GouthamSER](https://github.com/GouthamSER)** — Owner & Developer & Re-Edited
 - **[EverythingSuckz](https://github.com/EverythingSuckz)** — Original author of TG-FileStreamBot
 - **[eyaadh](https://github.com/eyaadh)** — Original streaming core from [Megatron Bot](https://github.com/eyaadh/megadlbot_oss)
 - **[BlackStone](https://github.com/eyMarv)** — Multi-client support
@@ -228,6 +228,6 @@ Developed and maintained by **[GouthamSER](https://github.com/GouthamSER)**
 
 ## License
 
-Copyright (C) 2024 [GouthamSER](https://github.com/GouthamSER) under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html).
+Copyright (C) 2026 [GouthamSER](https://github.com/GouthamSER) under the [GNU Affero General Public License v3.0](https://www.gnu.org/licenses/agpl-3.0.en.html).
 
 This is free software — you can use, study, share and improve it under the terms of the AGPL-3.0 license.
